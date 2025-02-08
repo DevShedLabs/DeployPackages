@@ -196,5 +196,214 @@
         }
       }
     ]
+  },
+  "node": {
+    "name": "Node.js Setup",
+    "tasks": [
+      {
+        "name": "Install prerequisites",
+        "apt": {
+          "name": [
+            "curl",
+            "gnupg2",
+            "ca-certificates",
+            "lsb-release"
+          ],
+          "state": "present"
+        }
+      },
+      {
+        "name": "Add NodeSource GPG key",
+        "command": {
+          "cmd": "curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/nodesource.gpg"
+        }
+      },
+      {
+        "name": "Add NodeSource repository",
+        "command": {
+          "cmd": "echo \"deb [signed-by=/etc/apt/trusted.gpg.d/nodesource.gpg] https://deb.nodesource.com/node_20.x $(lsb_release -cs) main\" | sudo tee /etc/apt/sources.list.d/nodesource.list"
+        }
+      },
+      {
+        "name": "Update apt cache",
+        "apt": {
+          "update_cache": "yes"
+        }
+      },
+      {
+        "name": "Install Node.js",
+        "apt": {
+          "name": "nodejs",
+          "state": "present"
+        }
+      },
+      {
+        "name": "Install build essentials for native modules",
+        "apt": {
+          "name": [
+            "build-essential",
+            "python3"
+          ],
+          "state": "present"
+        }
+      }
+    ]
+  },
+  "python": {
+    "name": "Python Development",
+    "tasks": [
+      {
+        "name": "Install prerequisites",
+        "apt": {
+          "name": [
+            "software-properties-common",
+            "build-essential"
+          ],
+          "state": "present"
+        }
+      },
+      {
+        "name": "Add deadsnakes PPA",
+        "command": {
+          "cmd": "add-apt-repository -y ppa:deadsnakes/ppa"
+        }
+      },
+      {
+        "name": "Update apt cache",
+        "apt": {
+          "update_cache": "yes"
+        }
+      },
+      {
+        "name": "Install Python and tools",
+        "apt": {
+          "name": [
+            "python3.11",
+            "python3.11-dev",
+            "python3.11-venv",
+            "python3-pip",
+            "python3-setuptools",
+            "python3-wheel"
+          ],
+          "state": "present"
+        }
+      },
+      {
+        "name": "Install Poetry",
+        "command": {
+          "cmd": "curl -sSL https://install.python-poetry.org | python3 -"
+        }
+      }
+    ]
+  },
+  "php": {
+    "name": "PHP Stack",
+    "tasks": [
+      {
+        "name": "Install prerequisites",
+        "apt": {
+          "name": [
+            "ca-certificates",
+            "apt-transport-https",
+            "software-properties-common"
+          ],
+          "state": "present"
+        }
+      },
+      {
+        "name": "Add PHP repository",
+        "command": {
+          "cmd": "add-apt-repository -y ppa:ondrej/php"
+        }
+      },
+      {
+        "name": "Update apt cache",
+        "apt": {
+          "update_cache": "yes"
+        }
+      },
+      {
+        "name": "Install PHP and extensions",
+        "apt": {
+          "name": [
+            "php8.2",
+            "php8.2-cli",
+            "php8.2-fpm",
+            "php8.2-mysql",
+            "php8.2-pgsql",
+            "php8.2-curl",
+            "php8.2-gd",
+            "php8.2-mbstring",
+            "php8.2-xml",
+            "php8.2-zip",
+            "php8.2-bcmath",
+            "php8.2-soap",
+            "php8.2-intl",
+            "php8.2-readline",
+            "php8.2-ldap",
+            "php8.2-msgpack",
+            "php8.2-igbinary",
+            "php8.2-redis",
+            "php8.2-memcached"
+          ],
+          "state": "present"
+        }
+      },
+      {
+        "name": "Install Composer",
+        "command": {
+          "cmd": "curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer"
+        }
+      }
+    ]
+  },
+  "go": {
+    "name": "Go Development",
+    "tasks": [
+      {
+        "name": "Install prerequisites",
+        "apt": {
+          "name": [
+            "curl",
+            "git",
+            "mercurial",
+            "build-essential"
+          ],
+          "state": "present"
+        }
+      },
+      {
+        "name": "Download Go",
+        "command": {
+          "cmd": "curl -OL https://golang.org/dl/go1.21.6.linux-amd64.tar.gz"
+        }
+      },
+      {
+        "name": "Remove any existing Go installation",
+        "command": {
+          "cmd": "rm -rf /usr/local/go"
+        }
+      },
+      {
+        "name": "Extract Go",
+        "command": {
+          "cmd": "tar -C /usr/local -xzf go1.21.6.linux-amd64.tar.gz"
+        }
+      },
+      {
+        "name": "Set up Go environment",
+        "command": {
+          "cmd": "echo \"export PATH=$PATH:/usr/local/go/bin\" >> /etc/profile"
+        }
+      },
+      {
+        "name": "Create Go workspace",
+        "file": {
+          "path": "/root/go",
+          "state": "directory",
+          "mode": "0755"
+        }
+      }
+    ]
   }
 }
