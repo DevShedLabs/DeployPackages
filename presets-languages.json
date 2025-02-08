@@ -1,0 +1,344 @@
+{
+  "go": {
+    "name": "Go Development Environment",
+    "tasks": [
+      {
+        "name": "Install build essentials",
+        "apt": {
+          "name": [
+            "curl",
+            "git",
+            "build-essential",
+            "mercurial"
+          ],
+          "state": "present"
+        }
+      },
+      {
+        "name": "Download Go",
+        "command": {
+          "cmd": "curl -OL https://golang.org/dl/go1.21.6.linux-amd64.tar.gz"
+        }
+      },
+      {
+        "name": "Remove old Go installation",
+        "command": {
+          "cmd": "rm -rf /usr/local/go"
+        }
+      },
+      {
+        "name": "Extract Go",
+        "command": {
+          "cmd": "tar -C /usr/local -xzf go1.21.6.linux-amd64.tar.gz"
+        }
+      },
+      {
+        "name": "Set Go environment variables",
+        "command": {
+          "cmd": "echo 'export PATH=$PATH:/usr/local/go/bin\nexport GOPATH=$HOME/go\nexport GOBIN=$GOPATH/bin\nexport PATH=$PATH:$GOBIN' >> /etc/profile.d/go.sh"
+        }
+      },
+      {
+        "name": "Create Go workspace",
+        "file": {
+          "path": "/root/go",
+          "state": "directory",
+          "mode": "0755"
+        }
+      },
+      {
+        "name": "Install Go tools",
+        "command": {
+          "cmd": "go install golang.org/x/tools/gopls@latest && go install github.com/go-delve/delve/cmd/dlv@latest && go install honnef.co/go/tools/cmd/staticcheck@latest"
+        }
+      }
+    ]
+  },
+  "rust": {
+    "name": "Rust Development Environment",
+    "tasks": [
+      {
+        "name": "Install build essentials",
+        "apt": {
+          "name": [
+            "curl",
+            "build-essential",
+            "git",
+            "pkg-config",
+            "libssl-dev"
+          ],
+          "state": "present"
+        }
+      },
+      {
+        "name": "Download Rustup",
+        "command": {
+          "cmd": "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y"
+        }
+      },
+      {
+        "name": "Set Rust environment",
+        "command": {
+          "cmd": "source $HOME/.cargo/env"
+        }
+      },
+      {
+        "name": "Install common Rust tools",
+        "command": {
+          "cmd": "rustup component add rustfmt clippy rust-analyzer && cargo install cargo-edit cargo-watch cargo-audit"
+        }
+      },
+      {
+        "name": "Configure Rust update checks",
+        "command": {
+          "cmd": "rustup default stable"
+        }
+      }
+    ]
+  },
+  "python": {
+    "name": "Python Development Environment",
+    "tasks": [
+      {
+        "name": "Install prerequisites",
+        "apt": {
+          "name": [
+            "software-properties-common",
+            "build-essential"
+          ],
+          "state": "present"
+        }
+      },
+      {
+        "name": "Add deadsnakes PPA",
+        "command": {
+          "cmd": "add-apt-repository -y ppa:deadsnakes/ppa"
+        }
+      },
+      {
+        "name": "Update apt cache",
+        "apt": {
+          "update_cache": "yes"
+        }
+      },
+      {
+        "name": "Install Python and development tools",
+        "apt": {
+          "name": [
+            "python3.11",
+            "python3.11-dev",
+            "python3.11-venv",
+            "python3-pip",
+            "python3-setuptools",
+            "python3-wheel"
+          ],
+          "state": "present"
+        }
+      },
+      {
+        "name": "Install Poetry",
+        "command": {
+          "cmd": "curl -sSL https://install.python-poetry.org | python3 -"
+        }
+      },
+      {
+        "name": "Install development libraries",
+        "apt": {
+          "name": [
+            "libpq-dev",
+            "libmariadb-dev",
+            "libssl-dev",
+            "zlib1g-dev",
+            "libbz2-dev",
+            "libreadline-dev",
+            "libsqlite3-dev",
+            "libffi-dev"
+          ],
+          "state": "present"
+        }
+      },
+      {
+        "name": "Install common Python tools",
+        "command": {
+          "cmd": "pip3 install black pylint mypy pytest coverage"
+        }
+      }
+    ]
+  },
+  "php": {
+    "name": "PHP Development Environment",
+    "tasks": [
+      {
+        "name": "Install prerequisites",
+        "apt": {
+          "name": [
+            "ca-certificates",
+            "apt-transport-https",
+            "software-properties-common"
+          ],
+          "state": "present"
+        }
+      },
+      {
+        "name": "Add PHP repository",
+        "command": {
+          "cmd": "add-apt-repository -y ppa:ondrej/php"
+        }
+      },
+      {
+        "name": "Update apt cache",
+        "apt": {
+          "update_cache": "yes"
+        }
+      },
+      {
+        "name": "Install PHP and extensions",
+        "apt": {
+          "name": [
+            "php8.2-cli",
+            "php8.2-fpm",
+            "php8.2-dev",
+            "php8.2-mysql",
+            "php8.2-pgsql",
+            "php8.2-sqlite3",
+            "php8.2-gd",
+            "php8.2-curl",
+            "php8.2-imap",
+            "php8.2-mbstring",
+            "php8.2-xml",
+            "php8.2-zip",
+            "php8.2-bcmath",
+            "php8.2-soap",
+            "php8.2-intl",
+            "php8.2-readline",
+            "php8.2-ldap",
+            "php8.2-msgpack",
+            "php8.2-igbinary",
+            "php8.2-redis",
+            "php8.2-xdebug"
+          ],
+          "state": "present"
+        }
+      },
+      {
+        "name": "Install Composer",
+        "command": {
+          "cmd": "curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer"
+        }
+      },
+      {
+        "name": "Install PHP development tools",
+        "command": {
+          "cmd": "composer global require phpunit/phpunit phpstan/phpstan squizlabs/php_codesniffer"
+        }
+      }
+    ]
+  },
+  "node": {
+    "name": "Node.js Development Environment",
+    "tasks": [
+      {
+        "name": "Install prerequisites",
+        "apt": {
+          "name": [
+            "curl",
+            "gnupg2",
+            "build-essential",
+            "python3"
+          ],
+          "state": "present"
+        }
+      },
+      {
+        "name": "Add NodeSource GPG key",
+        "command": {
+          "cmd": "curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/nodesource.gpg"
+        }
+      },
+      {
+        "name": "Add NodeSource repository",
+        "command": {
+          "cmd": "echo \"deb [signed-by=/etc/apt/trusted.gpg.d/nodesource.gpg] https://deb.nodesource.com/node_20.x $(lsb_release -cs) main\" | sudo tee /etc/apt/sources.list.d/nodesource.list"
+        }
+      },
+      {
+        "name": "Update apt cache",
+        "apt": {
+          "update_cache": "yes"
+        }
+      },
+      {
+        "name": "Install Node.js",
+        "apt": {
+          "name": "nodejs",
+          "state": "present"
+        }
+      },
+      {
+        "name": "Install development tools",
+        "command": {
+          "cmd": "npm install -g typescript ts-node nodemon eslint prettier jest pnpm"
+        }
+      },
+      {
+        "name": "Configure NPM for development",
+        "command": {
+          "cmd": "npm config set init-author-name \"Developer\" && npm config set init-license \"MIT\""
+        }
+      }
+    ]
+  },
+  "java": {
+    "name": "Java Development Environment",
+    "tasks": [
+      {
+        "name": "Install prerequisites",
+        "apt": {
+          "name": [
+            "software-properties-common",
+            "curl"
+          ],
+          "state": "present"
+        }
+      },
+      {
+        "name": "Add Eclipse Temurin repository",
+        "command": {
+          "cmd": "wget -O - https://packages.adoptium.net/artifactory/api/gpg/key/public | sudo apt-key add - && echo 'deb https://packages.adoptium.net/artifactory/deb $(lsb_release -cs) main' | sudo tee /etc/apt/sources.list.d/adoptium.list"
+        }
+      },
+      {
+        "name": "Update apt cache",
+        "apt": {
+          "update_cache": "yes"
+        }
+      },
+      {
+        "name": "Install JDK",
+        "apt": {
+          "name": "temurin-17-jdk",
+          "state": "present"
+        }
+      },
+      {
+        "name": "Install Maven",
+        "apt": {
+          "name": "maven",
+          "state": "present"
+        }
+      },
+      {
+        "name": "Install Gradle",
+        "command": {
+          "cmd": "curl -s \"https://get.sdkman.io\" | bash && source \"$HOME/.sdkman/bin/sdkman-init.sh\" && sdk install gradle"
+        }
+      },
+      {
+        "name": "Set JAVA_HOME",
+        "command": {
+          "cmd": "echo 'export JAVA_HOME=/usr/lib/jvm/temurin-17-jdk-amd64' >> /etc/profile.d/jdk.sh"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,214 @@
+{
+  "mysql": {
+    "name": "MySQL Server",
+    "tasks": [
+      {
+        "name": "Install prerequisites",
+        "apt": {
+          "name": [
+            "software-properties-common",
+            "gnupg"
+          ],
+          "state": "present"
+        }
+      },
+      {
+        "name": "Add MySQL APT repository",
+        "command": {
+          "cmd": "wget -qO - https://dev.mysql.com/get/mysql-apt-config_0.8.25-1_all.deb -O /tmp/mysql-apt-config.deb"
+        }
+      },
+      {
+        "name": "Configure MySQL repository",
+        "command": {
+          "cmd": "DEBIAN_FRONTEND=noninteractive dpkg -i /tmp/mysql-apt-config.deb"
+        }
+      },
+      {
+        "name": "Update apt cache",
+        "apt": {
+          "update_cache": "yes"
+        }
+      },
+      {
+        "name": "Install MySQL",
+        "apt": {
+          "name": [
+            "mysql-server",
+            "mysql-client",
+            "python3-mysqldb"
+          ],
+          "state": "present"
+        }
+      },
+      {
+        "name": "Start MySQL",
+        "service": {
+          "name": "mysql",
+          "state": "started",
+          "enabled": "yes"
+        }
+      }
+    ]
+  },
+  "postgresql": {
+    "name": "PostgreSQL Server",
+    "tasks": [
+      {
+        "name": "Install prerequisites",
+        "apt": {
+          "name": [
+            "curl",
+            "ca-certificates",
+            "gnupg"
+          ],
+          "state": "present"
+        }
+      },
+      {
+        "name": "Add PostgreSQL GPG key",
+        "command": {
+          "cmd": "curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/postgresql.gpg"
+        }
+      },
+      {
+        "name": "Add PostgreSQL repository",
+        "command": {
+          "cmd": "echo \"deb [arch=amd64] http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main\" | sudo tee /etc/apt/sources.list.d/postgresql.list"
+        }
+      },
+      {
+        "name": "Update apt cache",
+        "apt": {
+          "update_cache": "yes"
+        }
+      },
+      {
+        "name": "Install PostgreSQL",
+        "apt": {
+          "name": [
+            "postgresql-15",
+            "postgresql-contrib",
+            "libpq-dev",
+            "python3-psycopg2"
+          ],
+          "state": "present"
+        }
+      },
+      {
+        "name": "Start PostgreSQL",
+        "service": {
+          "name": "postgresql",
+          "state": "started",
+          "enabled": "yes"
+        }
+      }
+    ]
+  },
+  "mongodb": {
+    "name": "MongoDB",
+    "tasks": [
+      {
+        "name": "Install prerequisites",
+        "apt": {
+          "name": [
+            "gnupg",
+            "curl"
+          ],
+          "state": "present"
+        }
+      },
+      {
+        "name": "Add MongoDB GPG key",
+        "command": {
+          "cmd": "curl -fsSL https://pgp.mongodb.com/server-6.0.asc | sudo gpg -o /usr/share/keyrings/mongodb-server-6.0.gpg --dearmor"
+        }
+      },
+      {
+        "name": "Add MongoDB repository",
+        "command": {
+          "cmd": "echo \"deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-6.0.gpg ] https://repo.mongodb.org/apt/ubuntu $(lsb_release -cs)/mongodb-org/6.0 multiverse\" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list"
+        }
+      },
+      {
+        "name": "Update apt cache",
+        "apt": {
+          "update_cache": "yes"
+        }
+      },
+      {
+        "name": "Install MongoDB",
+        "apt": {
+          "name": [
+            "mongodb-org"
+          ],
+          "state": "present"
+        }
+      },
+      {
+        "name": "Create MongoDB data directory",
+        "file": {
+          "path": "/data/db",
+          "state": "directory",
+          "mode": "0755"
+        }
+      },
+      {
+        "name": "Start MongoDB",
+        "service": {
+          "name": "mongod",
+          "state": "started",
+          "enabled": "yes"
+        }
+      }
+    ]
+  },
+  "redis": {
+    "name": "Redis Server",
+    "tasks": [
+      {
+        "name": "Install prerequisites",
+        "apt": {
+          "name": [
+            "curl",
+            "gpg"
+          ],
+          "state": "present"
+        }
+      },
+      {
+        "name": "Add Redis GPG key",
+        "command": {
+          "cmd": "curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg"
+        }
+      },
+      {
+        "name": "Add Redis repository",
+        "command": {
+          "cmd": "echo \"deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main\" | sudo tee /etc/apt/sources.list.d/redis.list"
+        }
+      },
+      {
+        "name": "Update apt cache",
+        "apt": {
+          "update_cache": "yes"
+        }
+      },
+      {
+        "name": "Install Redis",
+        "apt": {
+          "name": "redis",
+          "state": "present"
+        }
+      },
+      {
+        "name": "Start Redis",
+        "service": {
+          "name": "redis",
+          "state": "started",
+          "enabled": "yes"
+        }
+      }
+    ]
+  }
+}

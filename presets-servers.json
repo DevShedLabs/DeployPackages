@@ -1,0 +1,200 @@
+{
+  "nginx": {
+    "name": "Nginx Web Server",
+    "tasks": [
+      {
+        "name": "Install prerequisites",
+        "apt": {
+          "name": [
+            "curl",
+            "gnupg2",
+            "ca-certificates",
+            "lsb-release"
+          ],
+          "state": "present"
+        }
+      },
+      {
+        "name": "Add Nginx signing key",
+        "command": {
+          "cmd": "curl https://nginx.org/keys/nginx_signing.key | gpg --dearmor | sudo tee /usr/share/keyrings/nginx-archive-keyring.gpg >/dev/null"
+        }
+      },
+      {
+        "name": "Add Nginx repository",
+        "command": {
+          "cmd": "echo \"deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] http://nginx.org/packages/ubuntu `lsb_release -cs` nginx\" | sudo tee /etc/apt/sources.list.d/nginx.list"
+        }
+      },
+      {
+        "name": "Update apt cache",
+        "apt": {
+          "update_cache": "yes"
+        }
+      },
+      {
+        "name": "Install Nginx",
+        "apt": {
+          "name": "nginx",
+          "state": "present"
+        }
+      },
+      {
+        "name": "Create web root directory",
+        "file": {
+          "path": "/var/www/html",
+          "state": "directory",
+          "mode": "0755"
+        }
+      },
+      {
+        "name": "Configure Nginx security headers",
+        "command": {
+          "cmd": "sed -i 's/# server_tokens off;/server_tokens off;/' /etc/nginx/nginx.conf"
+        }
+      },
+      {
+        "name": "Configure SSL parameters",
+        "command": {
+          "cmd": "echo 'ssl_protocols TLSv1.2 TLSv1.3;' >> /etc/nginx/conf.d/ssl.conf"
+        }
+      },
+      {
+        "name": "Start Nginx",
+        "service": {
+          "name": "nginx",
+          "state": "started",
+          "enabled": "yes"
+        }
+      }
+    ]
+  },
+  "apache": {
+    "name": "Apache Web Server",
+    "tasks": [
+      {
+        "name": "Install Apache",
+        "apt": {
+          "name": [
+            "apache2",
+            "apache2-utils"
+          ],
+          "state": "present"
+        }
+      },
+      {
+        "name": "Enable required Apache modules",
+        "command": {
+          "cmd": "a2enmod rewrite headers ssl security2"
+        }
+      },
+      {
+        "name": "Create web root directory",
+        "file": {
+          "path": "/var/www/html",
+          "state": "directory",
+          "mode": "0755"
+        }
+      },
+      {
+        "name": "Configure security headers",
+        "command": {
+          "cmd": "sed -i 's/ServerTokens OS/ServerTokens Prod/' /etc/apache2/conf-available/security.conf"
+        }
+      },
+      {
+        "name": "Enable HTTPS-only cookies",
+        "command": {
+          "cmd": "echo 'Header edit Set-Cookie ^(.*)$ $1;HttpOnly;Secure' >> /etc/apache2/conf-available/security.conf"
+        }
+      },
+      {
+        "name": "Configure SSL protocol",
+        "command": {
+          "cmd": "echo 'SSLProtocol all -SSLv3 -TLSv1 -TLSv1.1' >> /etc/apache2/conf-available/ssl.conf"
+        }
+      },
+      {
+        "name": "Start Apache",
+        "service": {
+          "name": "apache2",
+          "state": "started",
+          "enabled": "yes"
+        }
+      }
+    ]
+  },
+  "express": {
+    "name": "Express.js Server",
+    "tasks": [
+      {
+        "name": "Install Node.js prerequisites",
+        "apt": {
+          "name": [
+            "curl",
+            "gnupg2",
+            "ca-certificates"
+          ],
+          "state": "present"
+        }
+      },
+      {
+        "name": "Add NodeSource GPG key",
+        "command": {
+          "cmd": "curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/nodesource.gpg"
+        }
+      },
+      {
+        "name": "Add NodeSource repository",
+        "command": {
+          "cmd": "echo \"deb [signed-by=/etc/apt/trusted.gpg.d/nodesource.gpg] https://deb.nodesource.com/node_20.x $(lsb_release -cs) main\" | sudo tee /etc/apt/sources.list.d/nodesource.list"
+        }
+      },
+      {
+        "name": "Update apt cache",
+        "apt": {
+          "update_cache": "yes"
+        }
+      },
+      {
+        "name": "Install Node.js",
+        "apt": {
+          "name": "nodejs",
+          "state": "present"
+        }
+      },
+      {
+        "name": "Install PM2 process manager",
+        "command": {
+          "cmd": "npm install -g pm2"
+        }
+      },
+      {
+        "name": "Create application directory",
+        "file": {
+          "path": "/var/www/express-app",
+          "state": "directory",
+          "mode": "0755"
+        }
+      },
+      {
+        "name": "Initialize Express project",
+        "command": {
+          "cmd": "cd /var/www/express-app && npm init -y && npm install express helmet cors dotenv"
+        }
+      },
+      {
+        "name": "Create basic Express server file",
+        "command": {
+          "cmd": "echo 'const express = require(\"express\"); const helmet = require(\"helmet\"); const cors = require(\"cors\"); const app = express(); app.use(helmet()); app.use(cors()); app.use(express.json()); const port = process.env.PORT || 3000; app.listen(port, () => console.log(`Server running on port ${port}`));' > /var/www/express-app/server.js"
+        }
+      },
+      {
+        "name": "Setup PM2 startup script",
+        "command": {
+          "cmd": "pm2 startup systemd && pm2 start /var/www/express-app/server.js --name express-app && pm2 save"
+        }
+      }
+    ]
+  }
+}
